@@ -77,7 +77,7 @@ export const cardsData = [
     ],
   },
   {
-    title: "Cutting Tools",
+    title: "Bought-Out Parts",
     color: {
       backGround:
       "linear-gradient(180deg, #7FE183 0%, #7FE183 100%)",
@@ -88,13 +88,13 @@ export const cardsData = [
     png: UilUsdSquare,
     series: [
       {
-        name: "Cutting Tools",
+        name: "Bought-Out Parts",
         data: [10, 25, 15, 30, 12, 15, 20],
       },
     ],
   },
   {
-    title: "Assembly",
+    title: "Machining",
     color: {
       backGround:
         "linear-gradient(rgb(248, 212, 154) -146.42%, rgb(255 202 113) -46.42%)",
@@ -105,7 +105,7 @@ export const cardsData = [
     png: UilUsdSquare,
     series: [
       {
-        name: "Assembly",
+        name: "Machining",
         data: [10, 25, 15, 30, 12, 15, 20],
       },
     ],
