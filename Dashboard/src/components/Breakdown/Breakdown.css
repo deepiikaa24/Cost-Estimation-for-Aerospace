@@ -1,0 +1,64 @@
+.Breakdown {
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: var(--boxShadow);
+  overflow: auto;
+  max-height: 80vh;
+}
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.level-1, .level-2, .level-3 {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem; /* Reduced spacing */
+}
+
+.branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 1.5rem; /* Reduced spacing */
+}
+
+.line {
+  width: 2px;
+  height: 1.5rem; /* Adjusted line height */
+  background-color: black;
+  margin-bottom: 0.5rem; /* Reduced spacing */
+}
+
+.box {
+  padding: 0.75rem; /* Reduced padding */
+  border: 2px solid black;
+  border-radius: 5px;
+  text-align: center;
+  background-color: #f0f0f0;
+  min-width: 130px; /* Reduced min-width */
+  color: #333;
+}
+
+.aluminum {
+  background-color: #e3f2fd; /* Light blue */
+  color: #0d47a1; /* Dark blue text */
+}
+
+.aluminum-alloy {
+  background-color: #bbdefb; /* Lighter blue */
+  color: #0d47a1; /* Dark blue text */
+}
+
+.iron {
+  background-color: #ffebee; /* Light red */
+  color: #b71c1c; /* Dark red text */
+}
+
+.iron-alloy {
+  background-color: #ffcdd2; /* Lighter red */
+  color: #b71c1c; /* Dark red text */
+}
