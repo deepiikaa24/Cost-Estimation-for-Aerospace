@@ -41,8 +41,8 @@ export const SidebarData = [
   },
   {
     icon: UilClipboardAlt,
-    heading: 'Report',
-    path: "/report"
+    heading: 'Input',
+    path: "/Input"
   },
 
 ];

@@ -6,7 +6,7 @@ import MainDash from './components/MainDash/MainDash';
 import Breakdown from './components/Breakdown/Breakdown';
 import History from './components/History/History';
 import Orders from './components/Orders/Orders';
-import Report from './components/Report/Report';
+import Input from './components/Input/Input';
 import RightSide from './components/RigtSide/RightSide';
 import Sidebar from './components/Sidebar'; // Ensure correct import path
 
@@ -21,7 +21,7 @@ function App() {
             <Route path="/breakdown" element={<Breakdown />} />
             <Route path="/history" element={<History />} />
             <Route path="/orders" element={<Orders />} />
-            <Route path="/report" element={<Report />} />
+            <Route path="/Input" element={<Input />} />
           </Routes>
           <RightSide />
         </Router>
