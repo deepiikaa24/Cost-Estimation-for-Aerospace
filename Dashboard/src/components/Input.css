@@ -1,0 +1,64 @@
+.Input {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-scroll {
+  max-height: 400px; /* Set the max height for the scrolling area */
+  overflow-y: auto;  /* Enable vertical scrolling */
+  margin-bottom: 20px; /* Add some space at the bottom */
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+input[readonly] {
+  background-color: #f9f9f9; /* Slightly different background for readonly fields */
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #007bff; /* Change color on hover */
+  color: white; /* Change text color on hover */
+}
+
+
+
+
+
+
+
+
+  
