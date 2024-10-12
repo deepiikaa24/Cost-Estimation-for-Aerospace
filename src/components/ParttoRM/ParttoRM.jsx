@@ -3,7 +3,7 @@ import axios from "axios";
 import "./ParttoRM.css";
 
 // Form component to collect necessary inputs and make predictions
-const ParttoRM = ({ setPredictedRM }) => { // Accept setPredictedRM as a prop from App.js
+const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
   const [formData, setFormData] = useState({
     length: "",
     thickness: "",
@@ -25,6 +25,11 @@ const ParttoRM = ({ setPredictedRM }) => { // Accept setPredictedRM as a prop fr
       ...prevData,
       [name]: value,
     }));
+
+    // Update the selected form state in App.js
+    if (name === "form") {
+      setSelectedForm(value);
+    }
   };
 
   const predictRM = async () => {
@@ -50,7 +55,7 @@ const ParttoRM = ({ setPredictedRM }) => { // Accept setPredictedRM as a prop fr
         volume: (rmThickness * rmWidth * rmLength).toFixed(2), // Volume calculation
       });
 
-      // Update the shared state in App.js to pass it to Input.jsx
+      // Update the shared state in App.js with the predicted dimensions
       setPredictedRM({
         rmThickness: rmThickness.toFixed(2),
         rmWidth: rmWidth.toFixed(2),
@@ -144,3 +149,4 @@ const ParttoRM = ({ setPredictedRM }) => { // Accept setPredictedRM as a prop fr
 };
 
 export default ParttoRM;
+

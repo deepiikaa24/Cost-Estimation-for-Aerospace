@@ -30,17 +30,16 @@ const materialAlloyTemperDensity = {
   // Add other materials, alloys, and densities here...
 };
 
-const Input = ({ predictedRM }) => {
+const Input = ({ predictedRM, selectedForm }) => {
   const [formData, setFormData] = useState({
-    partSize: "",
     length: predictedRM?.rmLength || "",
-    thickness: predictedRM?.rmThickness || "",
     width: predictedRM?.rmWidth || "",
+    thickness: predictedRM?.rmThickness || "",
+    form: selectedForm || "",
     diameter: "",
     material: "",
     alloy: "",
     temper: "",
-    form: "",
     density: "",
     volume: "",
     weight: "",
@@ -48,7 +47,19 @@ const Input = ({ predictedRM }) => {
 
   const [alloys, setAlloys] = useState([]);
   const [tempers, setTempers] = useState([]);
-  const [formType, setFormType] = useState("");
+  const [formType, setFormType] = useState(selectedForm || "");
+
+  // Update form data when predictedRM or selectedForm changes
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      length: predictedRM?.rmLength || "",
+      width: predictedRM?.rmWidth || "",
+      thickness: predictedRM?.rmThickness || "",
+      form: selectedForm,
+    }));
+    setFormType(selectedForm);
+  }, [predictedRM, selectedForm]);
 
   // Update alloys and density when material changes
   useEffect(() => {
@@ -60,8 +71,6 @@ const Input = ({ predictedRM }) => {
         density: selectedMaterial.density,
         alloy: "",
         temper: "",
-        volume: "",
-        weight: "",
       }));
       setTempers([]); // Reset tempers when material changes
     }
@@ -77,20 +86,6 @@ const Input = ({ predictedRM }) => {
     }
   }, [formData.alloy]);
 
-  // Update the dimension input fields based on form type (round, flat, bar, etc.)
-  useEffect(() => {
-    setFormType(formData.form);
-    setFormData((prevData) => ({
-      ...prevData,
-      length: predictedRM?.rmLength || "",
-      width: predictedRM?.rmWidth || "",
-      thickness: predictedRM?.rmThickness || "",
-      diameter: "",
-      volume: "",
-      weight: "",
-    }));
-  }, [formData.form, predictedRM]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -105,17 +100,14 @@ const Input = ({ predictedRM }) => {
       const radius = formData.diameter / 2;
       volume = Math.PI * Math.pow(radius, 2) * formData.length; // Volume = πr²h
     } else {
-      volume =
-        formData.length *
-        formData.width *
-        formData.thickness; // Volume = l * w * h
+      volume = formData.length * formData.width * formData.thickness; // Volume = l * w * h
     }
 
     const weight = volume * formData.density; // Weight = Volume * Density
     setFormData((prevData) => ({
       ...prevData,
-      volume: volume.toFixed(2), // Keep two decimal places
-      weight: weight.toFixed(2), // Keep two decimal places
+      volume: volume.toFixed(2), // Two decimal places
+      weight: weight.toFixed(2), // Two decimal places
     }));
   };
 
@@ -128,6 +120,7 @@ const Input = ({ predictedRM }) => {
     <div className="Input">
       <form onSubmit={handleSubmit}>
         <div className="form-scroll">
+          {/* Form Dropdown */}
           <div className="form-group">
             <label htmlFor="form">Form</label>
             <select
@@ -144,6 +137,7 @@ const Input = ({ predictedRM }) => {
             </select>
           </div>
 
+          {/* Dimension Fields */}
           {formType === "Round" ? (
             <div className="form-group">
               <label htmlFor="diameter">Diameter (m)</label>
@@ -202,6 +196,7 @@ const Input = ({ predictedRM }) => {
             </div>
           )}
 
+          {/* Material Dropdown */}
           <div className="form-group">
             <label htmlFor="material">Material</label>
             <select
@@ -219,6 +214,7 @@ const Input = ({ predictedRM }) => {
             </select>
           </div>
 
+          {/* Alloy Dropdown */}
           <div className="form-group">
             <label htmlFor="alloy">Alloy</label>
             <select
@@ -237,6 +233,7 @@ const Input = ({ predictedRM }) => {
             </select>
           </div>
 
+          {/* Density Field */}
           <div className="form-group">
             <label htmlFor="density">Density (kg/m³)</label>
             <input
@@ -262,6 +259,7 @@ const Input = ({ predictedRM }) => {
 };
 
 export default Input;
+
 
 
 
