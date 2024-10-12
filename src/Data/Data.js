@@ -41,7 +41,7 @@ export const SidebarData = [
   },
   {
     icon: UilUsersAlt,
-    heading: "ParttoRM",
+    heading: "Part to RM",
     path: "/ParttoRM"
   },
   {
