@@ -150,7 +150,7 @@ const Input = ({ predictedRM, selectedForm }) => {
                 onChange={handleChange}
                 placeholder="Enter diameter in meters"
               />
-              <label htmlFor="length">Length (m)</label>
+              <label htmlFor="length">Length (in)</label>
               <input
                 type="number"
                 step="0.01"
@@ -163,7 +163,7 @@ const Input = ({ predictedRM, selectedForm }) => {
             </div>
           ) : (
             <div className="form-group">
-              <label htmlFor="length">Length (m)</label>
+              <label htmlFor="length">Length (in)</label>
               <input
                 type="number"
                 step="0.01"
@@ -173,7 +173,7 @@ const Input = ({ predictedRM, selectedForm }) => {
                 onChange={handleChange}
                 placeholder="Enter length in meters"
               />
-              <label htmlFor="width">Width (m)</label>
+              <label htmlFor="width">Width (in)</label>
               <input
                 type="number"
                 step="0.01"
@@ -183,7 +183,7 @@ const Input = ({ predictedRM, selectedForm }) => {
                 onChange={handleChange}
                 placeholder="Enter width in meters"
               />
-              <label htmlFor="thickness">Thickness (m)</label>
+              <label htmlFor="thickness">Thickness (in)</label>
               <input
                 type="number"
                 step="0.01"
