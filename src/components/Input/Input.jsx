@@ -35,8 +35,8 @@ const Input = ({ predictedRM, selectedForm }) => {
     length: predictedRM?.rmLength || "",
     width: predictedRM?.rmWidth || "",
     thickness: predictedRM?.rmThickness || "",
+    diameter: selectedForm === "Round" ? predictedRM?.rmWidth || "" : "",
     form: selectedForm || "",
-    diameter: "",
     material: "",
     alloy: "",
     temper: "",
@@ -56,6 +56,7 @@ const Input = ({ predictedRM, selectedForm }) => {
       length: predictedRM?.rmLength || "",
       width: predictedRM?.rmWidth || "",
       thickness: predictedRM?.rmThickness || "",
+      diameter: selectedForm === "Round" ? predictedRM?.rmWidth || "" : "",
       form: selectedForm,
     }));
     setFormType(selectedForm);
@@ -120,7 +121,6 @@ const Input = ({ predictedRM, selectedForm }) => {
     <div className="Input">
       <form onSubmit={handleSubmit}>
         <div className="form-scroll">
-          {/* Form Dropdown */}
           <div className="form-group">
             <label htmlFor="form">Form</label>
             <select
@@ -137,10 +137,9 @@ const Input = ({ predictedRM, selectedForm }) => {
             </select>
           </div>
 
-          {/* Dimension Fields */}
           {formType === "Round" ? (
             <div className="form-group">
-              <label htmlFor="diameter">Diameter (m)</label>
+              <label htmlFor="diameter">Diameter (in)</label>
               <input
                 type="number"
                 step="0.01"
@@ -148,7 +147,7 @@ const Input = ({ predictedRM, selectedForm }) => {
                 name="diameter"
                 value={formData.diameter}
                 onChange={handleChange}
-                placeholder="Enter diameter in meters"
+                placeholder="Enter diameter"
               />
               <label htmlFor="length">Length (in)</label>
               <input
@@ -158,7 +157,7 @@ const Input = ({ predictedRM, selectedForm }) => {
                 name="length"
                 value={formData.length}
                 onChange={handleChange}
-                placeholder="Enter length in meters"
+                placeholder="Enter length"
               />
             </div>
           ) : (
@@ -171,7 +170,7 @@ const Input = ({ predictedRM, selectedForm }) => {
                 name="length"
                 value={formData.length}
                 onChange={handleChange}
-                placeholder="Enter length in meters"
+                placeholder="Enter length"
               />
               <label htmlFor="width">Width (in)</label>
               <input
@@ -181,7 +180,7 @@ const Input = ({ predictedRM, selectedForm }) => {
                 name="width"
                 value={formData.width}
                 onChange={handleChange}
-                placeholder="Enter width in meters"
+                placeholder="Enter width"
               />
               <label htmlFor="thickness">Thickness (in)</label>
               <input
@@ -191,12 +190,11 @@ const Input = ({ predictedRM, selectedForm }) => {
                 name="thickness"
                 value={formData.thickness}
                 onChange={handleChange}
-                placeholder="Enter thickness in meters"
+                placeholder="Enter thickness"
               />
             </div>
           )}
 
-          {/* Material Dropdown */}
           <div className="form-group">
             <label htmlFor="material">Material</label>
             <select
@@ -214,26 +212,6 @@ const Input = ({ predictedRM, selectedForm }) => {
             </select>
           </div>
 
-          {/* Alloy Dropdown */}
-          <div className="form-group">
-            <label htmlFor="alloy">Alloy</label>
-            <select
-              id="alloy"
-              name="alloy"
-              value={formData.alloy}
-              onChange={handleChange}
-              disabled={!formData.material}
-            >
-              <option value="">Select Alloy</option>
-              {alloys.map((alloy) => (
-                <option key={alloy} value={alloy}>
-                  {alloy}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Density Field */}
           <div className="form-group">
             <label htmlFor="density">Density (kg/m³)</label>
             <input
@@ -245,8 +223,8 @@ const Input = ({ predictedRM, selectedForm }) => {
               placeholder="Density will auto-populate"
             />
           </div>
-           {/* Weight and Volume Fields */}
-           <div className="form-group">
+
+          <div className="form-group">
             <label htmlFor="volume">Volume (m³)</label>
             <input
               type="text"
@@ -269,17 +247,6 @@ const Input = ({ predictedRM, selectedForm }) => {
               placeholder="Weight will be calculated"
             />
           </div>
-          {/* Quantity Field */}
-          <label htmlFor="quantity">Quantity</label>
-            <input
-              type="number"
-              step="0.01"
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              placeholder="Enter quantity"
-            />
         </div>
 
         <div className="button-group">

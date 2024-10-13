@@ -6,8 +6,8 @@ import "./ParttoRM.css";
 const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
   const [formData, setFormData] = useState({
     length: "",
-    thickness: "",
     width: "",
+    thickness: "",
     form: "",
   });
 
@@ -15,7 +15,6 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
     rmThickness: "",
     rmWidth: "",
     rmLength: "",
-    volume: "",
   });
 
   // Update form data when input changes
@@ -26,7 +25,7 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
       [name]: value,
     }));
 
-    // Update the selected form state in App.js
+    // If the form changes, update the selected form in App.js
     if (name === "form") {
       setSelectedForm(value);
     }
@@ -52,10 +51,9 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
         rmThickness: rmThickness.toFixed(2),
         rmWidth: rmWidth.toFixed(2),
         rmLength: rmLength.toFixed(2),
-        volume: (rmThickness * rmWidth * rmLength).toFixed(2), // Volume calculation
       });
 
-      // Update the shared state in App.js with the predicted dimensions
+      // Update the shared state in App.js to pass to Input.jsx
       setPredictedRM({
         rmThickness: rmThickness.toFixed(2),
         rmWidth: rmWidth.toFixed(2),
@@ -95,38 +93,57 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
             name="length"
             value={formData.length}
             onChange={handleChange}
-            placeholder="Enter length in meters"
+            placeholder="Enter length in inches"
             className="parttoRM-input"
           />
         </div>
 
-        <div className="parttoRM-form-group">
-          <label htmlFor="width">Width (in)</label>
-          <input
-            type="number"
-            step="0.01"
-            id="width"
-            name="width"
-            value={formData.width}
-            onChange={handleChange}
-            placeholder="Enter width in meters"
-            className="parttoRM-input"
-          />
-        </div>
+        {/* Show only Width as Diameter if the form is Round */}
+        {formData.form === "Round" ? (
+          <div className="parttoRM-form-group">
+            <label htmlFor="width">Diameter (in)</label>
+            <input
+              type="number"
+              step="0.01"
+              id="width"
+              name="width"
+              value={formData.width}
+              onChange={handleChange}
+              placeholder="Enter diameter in inches"
+              className="parttoRM-input"
+            />
+          </div>
+        ) : (
+          <>
+            <div className="parttoRM-form-group">
+              <label htmlFor="width">Width (in)</label>
+              <input
+                type="number"
+                step="0.01"
+                id="width"
+                name="width"
+                value={formData.width}
+                onChange={handleChange}
+                placeholder="Enter width in inches"
+                className="parttoRM-input"
+              />
+            </div>
 
-        <div className="parttoRM-form-group">
-          <label htmlFor="thickness">Thickness (in)</label>
-          <input
-            type="number"
-            step="0.01"
-            id="thickness"
-            name="thickness"
-            value={formData.thickness}
-            onChange={handleChange}
-            placeholder="Enter thickness in meters"
-            className="parttoRM-input"
-          />
-        </div>
+            <div className="parttoRM-form-group">
+              <label htmlFor="thickness">Thickness (in)</label>
+              <input
+                type="number"
+                step="0.01"
+                id="thickness"
+                name="thickness"
+                value={formData.thickness}
+                onChange={handleChange}
+                placeholder="Enter thickness in inches"
+                className="parttoRM-input"
+              />
+            </div>
+          </>
+        )}
 
         <div className="parttoRM-button-group">
           <button type="button" onClick={predictRM} className="parttoRM-button">
@@ -135,13 +152,16 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
         </div>
       </form>
 
-      {localPredictedRM.rmThickness && (
+      {localPredictedRM.rmLength && (
         <div className="prediction-result">
           <h3>Predicted Raw Material Dimensions:</h3>
-          <p>RM Thickness: {localPredictedRM.rmThickness} m</p>
-          <p>RM Width: {localPredictedRM.rmWidth} m</p>
-          <p>RM Length: {localPredictedRM.rmLength} m</p>
-          <p>Volume: {localPredictedRM.volume} m³</p>
+          <p>RM Length: {localPredictedRM.rmLength} in</p>
+          <p>RM Width: {localPredictedRM.rmWidth} in</p>
+
+          {/* Only display Thickness if the form is not Round */}
+          {formData.form !== "Round" && (
+            <p>RM Thickness: {localPredictedRM.rmThickness} in</p>
+          )}
         </div>
       )}
     </div>
@@ -149,4 +169,6 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
 };
 
 export default ParttoRM;
+
+
 
