@@ -269,6 +269,17 @@ const Input = ({ predictedRM, selectedForm }) => {
               placeholder="Weight will be calculated"
             />
           </div>
+          {/* Quantity Field */}
+          <label htmlFor="quantity">Quantity</label>
+            <input
+              type="number"
+              step="0.01"
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              placeholder="Enter quantity"
+            />
         </div>
 
         <div className="button-group">
