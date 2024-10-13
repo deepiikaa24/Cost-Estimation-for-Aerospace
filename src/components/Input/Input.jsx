@@ -245,6 +245,30 @@ const Input = ({ predictedRM, selectedForm }) => {
               placeholder="Density will auto-populate"
             />
           </div>
+           {/* Weight and Volume Fields */}
+           <div className="form-group">
+            <label htmlFor="volume">Volume (m³)</label>
+            <input
+              type="text"
+              id="volume"
+              name="volume"
+              value={formData.volume}
+              readOnly
+              placeholder="Volume will be calculated"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="weight">Weight (kg)</label>
+            <input
+              type="text"
+              id="weight"
+              name="weight"
+              value={formData.weight}
+              readOnly
+              placeholder="Weight will be calculated"
+            />
+          </div>
         </div>
 
         <div className="button-group">
