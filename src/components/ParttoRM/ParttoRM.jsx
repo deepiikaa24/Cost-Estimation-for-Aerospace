@@ -36,7 +36,7 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
       console.log("Form data being sent to the backend:", formData);
 
       // Send form data to the backend for predicting RM dimensions
-      const response = await axios.post("http://127.0.0.1:5000/predict", formData, {
+      const response = await axios.post("http://127.0.0.1:5000/predict_rm", formData, {
         headers: {
           "Content-Type": "application/json",
         },
