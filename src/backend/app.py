@@ -6,18 +6,20 @@ import pandas as pd
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
-# Load your saved XGBoost model
+# Load your saved models
 xgboost_model = joblib.load('xgboost_model.pkl')
+random_forest_model = joblib.load('random_forest_model.pkl')
+label_encoders = joblib.load('label_encoders.pkl')
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.route('/predict_rm', methods=['POST'])
+def predict_rm():
     try:
         # Log that a POST request was received
-        print("Received a request for prediction")
+        print("Received a request for XGBoost model prediction")
 
         # Get the JSON data from the request
         data = request.json
-        print("Input data received:", data)
+        print("Input data receivedfor XGBoost model:", data)
 
         # Map the incoming fields to the feature names expected by the model
         input_data = {
@@ -64,7 +66,7 @@ def predict():
 
         # Make prediction using the XGBoost model
         prediction = xgboost_model.predict(input_df)
-        print("Model prediction:", prediction)
+        print("Part to RM Model prediction:", prediction)
 
         # Cast the prediction to standard Python float types
         rm_thickness, rm_width, rm_length = map(float, prediction[0])
@@ -79,9 +81,61 @@ def predict():
         })
 
     except Exception as e:
-        print("Error during prediction:", e)
-        return jsonify({"error": "Prediction failed"}), 500
+        print("Error during Part to RM prediction:", e)
+        return jsonify({"error": "Part to RM Prediction failed"}), 500
 
+# Input Page API (Random Forest model)
+@app.route('/predict_price', methods=['POST'])
+def predict_price():
+    try:
+        # Log that a POST request was received
+        print("Received a request for Random Forest model prediction")
+
+        # Get the JSON data from the request
+        data = request.json
+        print("Input data received for Random Forest model:", data)
+
+        # Prepare input data for Random Forest model prediction
+        input_data = {
+            'Matl. Code': data['material'],
+            'Alloy': data['alloy'],
+            'Temp': data['temper'],
+            'Spec': data['spec'],  # 'spec' is optional
+            'Form': data['form'],
+            'Weight': float(data['weight']) if data['weight'] else 0.0,
+            'Quantity': int(data['quantity']) if data['quantity'] else 0
+        }
+
+        # Convert the input_data into a DataFrame
+        input_df = pd.DataFrame([input_data])
+
+        # Ensure the columns are in the same order as the model's expected features
+        expected_features = ['Matl. Code', 'Alloy', 'Temp', 'Spec', 'Form', 'Weight', 'Quantity']
+        input_df = input_df[expected_features]
+
+        categorical_cols = ['Matl. Code', 'Alloy', 'Temp', 'Spec', 'Form']
+        for col in categorical_cols:
+            input_df[col] = label_encoders[col].transform(input_df[col])
+            
+        # Make price prediction using the Random Forest model
+        predicted_price = random_forest_model.predict(input_df)
+        print("Random Forest Model predicted price:", predicted_price)
+
+        # Cast the predicted price to a standard float
+        predicted_price = float(predicted_price[0])
+
+        # Return the predicted price as JSON
+        return jsonify({
+            "predicted_price": predicted_price
+        })
+
+    except Exception as e:
+        print("Error during Random Forest prediction:", e)
+        return jsonify({"error": "Random Forest Prediction failed"}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
 
