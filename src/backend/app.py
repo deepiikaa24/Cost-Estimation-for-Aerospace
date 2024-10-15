@@ -10,6 +10,8 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 xgboost_model = joblib.load('xgboost_model.pkl')
 random_forest_model = joblib.load('random_forest_model.pkl')
 label_encoders = joblib.load('label_encoders.pkl')
+scaler = joblib.load('scaler.pkl')  # Load the StandardScaler
+
 
 @app.route('/predict_rm', methods=['POST'])
 def predict_rm():
@@ -117,6 +119,10 @@ def predict_price():
         for col in categorical_cols:
             input_df[col] = label_encoders[col].transform(input_df[col])
             
+        # Transform the 'Weight' and 'Quantity' fields using the loaded scaler
+        input_df[['Weight', 'Quantity']] = scaler.transform(input_df[['Weight', 'Quantity']])
+
+        
         # Make price prediction using the Random Forest model
         predicted_price = random_forest_model.predict(input_df)
         print("Random Forest Model predicted price:", predicted_price)
