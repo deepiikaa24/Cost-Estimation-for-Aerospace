@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";  
 import axios from "axios"; // Import axios for making API calls
 import "./Input.css";
 
@@ -6,27 +6,40 @@ import "./Input.css";
 const materialAlloyTemperDensity = {
   AL: {
     alloys: {
-      2024: ["T3", "T351"],
+      2024: ["T0","T3", "T351","T3511","T4"],
       2124: ["T851"],
-      6061: ["T6", "T651"],
-      7050: ["T7451"],
-      7075: ["T6"],
+      6061: ["T4","T0","T6", "T651","T6511","T652"],
+      7050: ["T7451","T7651"],
+      7075: ["T6","T0","T76","T651","T7351","T73511"],
       7475: ["T7351"],
     },
-    density: 2.7, // Example density for Aluminum in kg/m³
+    density: 2700, // Example density for Aluminum in kg/m³
   },
   SS: {
     alloys: {
+      301: ["A", "B"],
+      303: ["A", "B"],
+      "303SE": ["A", "B"],
+      304: ["A", "B"],
+      "304L": ["A", "B"],
+      316: ["A", "B"],
+      "316L": ["A", "B"],
+      321: ["A", "B"],
+      "440C": ["A", "B"],
+      "13-8 MO": ["A", "B"],
+      "15-5 PH": ["A", "B"],
+      "17-A PH": ["A", "B"],
       4130: ["A", "B"],
-      4340: ["C", "D"],
+      4340: ["A", "B"],
+      
     },
-    density: 7.85, // Example density for Steel in kg/m³
+    density: 7850, // Example density for Steel in kg/m³
   },
   TI: {
     alloys: {
       "Ti-6AL-4V": ["H1000", "H1150"],
     },
-    density: 4.5, // Example density for Titanium in kg/m³
+    density: 4507, // Example density for Titanium in kg/m³
   },
   // Add other materials, alloys, and densities here...
 };
@@ -100,22 +113,30 @@ const Input = ({ predictedRM, selectedForm }) => {
     }));
   };
 
-  const calculateWeightAndVolume = () => {
+  const calculateWeightAndVolume = () => { 
     let volume;
     if (formType === "RND") {
-      const radius = formData.diameter / 2;
-      volume = Math.PI * Math.pow(radius, 2) * formData.length; // Volume = πr²h
+        const radius = formData.diameter / 2;
+        volume = Math.PI * Math.pow(radius, 2) * formData.length; // Volume = πr²h
     } else {
-      volume = formData.length * formData.width * formData.thickness; // Volume = l * w * h
+        volume = formData.length * formData.width * formData.thickness; // Volume = l * w * h
     }
 
-    const weight = volume * formData.density; // Weight = Volume * Density
+    // Convert cubic inches to cubic meters (1 cubic inch = 0.000016387064 cubic meters)
+    volume = volume * 0.000016387064;
+
+    const weight = volume * formData.density; // Weight in kg = Volume * Density
+
+    // Convert weight to grams (1 kg = 1000 g)
+    const weightInGrams = weight * 1000;
+
     setFormData((prevData) => ({
-      ...prevData,
-      volume: volume.toFixed(2), // Two decimal places
-      weight: weight.toFixed(2), // Two decimal places
+        ...prevData,
+        volume: volume.toFixed(6), // Six decimal places for volume in m³
+        weight: weightInGrams.toFixed(2), // Two decimal places for weight in grams
     }));
-  };
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -164,6 +185,7 @@ const Input = ({ predictedRM, selectedForm }) => {
               <option value="FLAT">FLAT</option>
               <option value="BAR">BAR</option>
               <option value="EXT">EXT</option>
+              <option value="PLATE">PLATE</option> {/* Added plate option */}
             </select>
           </div>
   
@@ -281,56 +303,6 @@ const Input = ({ predictedRM, selectedForm }) => {
             </select>
           </div>
   
-          {/* Spec Input Field */}
-          <div className="form-group">
-            <label htmlFor="spec">Spec</label>
-            <input
-              type="text"
-              id="spec"
-              name="spec"
-              value={formData.spec}
-              onChange={handleChange}
-              placeholder="Enter spec"
-            />
-          </div>
-            
-          <div className="form-group">
-            <label htmlFor="density">Density (kg/m³)</label>
-            <input
-              type="text"
-              id="density"
-              name="density"
-              value={formData.density}
-              readOnly
-              placeholder="Density will auto-populate"
-            />
-          </div>
-  
-          <div className="form-group">
-            <label htmlFor="volume">Volume (m³)</label>
-            <input
-              type="text"
-              id="volume"
-              name="volume"
-              value={formData.volume}
-              readOnly
-              placeholder="Volume will be calculated"
-            />
-          </div>
-  
-          <div className="form-group">
-            <label htmlFor="weight">Weight (kg)</label>
-            <input
-              type="text"
-              id="weight"
-              name="weight"
-              value={formData.weight}
-              readOnly
-              placeholder="Weight will be calculated"
-            />
-          </div>
-
-          {/* Quantity Input Field */}
           <div className="form-group">
             <label htmlFor="quantity">Quantity</label>
             <input
@@ -342,48 +314,64 @@ const Input = ({ predictedRM, selectedForm }) => {
               placeholder="Enter quantity"
             />
           </div>
+  
+          {/* Display calculated volume, weight, and predicted price */}
           <div className="form-group">
-            <label htmlFor="predictedPrice">Predicted Price</label>
+            <label htmlFor="volume">Volume (m³)</label>
             <input
-                type="text"
-                id="predictedPrice"
-                name="predictedPrice"
-                value={formData.predictedPrice}
-                readOnly
-                placeholder="Predicted price will be displayed here"
+              type="text"
+              id="volume"
+              name="volume"
+              value={formData.volume}
+              readOnly
+              placeholder="Calculated volume"
+            />
+            <label htmlFor="weight">Weight (gms)</label>
+            <input
+              type="text"
+              id="weight"
+              name="weight"
+              value={formData.weight}
+              readOnly
+              placeholder="Calculated weight"
+            />
+            <label htmlFor="predictedPrice">Predicted Price per kg</label>
+            <input
+              type="text"
+              id="predictedPrice"
+              name="predictedPrice"
+              value={formData.predictedPrice}
+              readOnly
+              placeholder="Predicted price"
+            />
+            <label htmlFor="netPrice">Net Price</label>
+            <input
+              type="text"
+              id="netPrice"
+              name="netPrice"
+              value={formData.netPrice}
+              readOnly
+              placeholder="Net price"
+            />
+            <label htmlFor="netValue">Net Value</label>
+            <input
+              type="text"
+              id="netValue"
+              name="netValue"
+              value={formData.netValue}
+              readOnly
+              placeholder="Net value"
             />
           </div>
-        {/* Net Price as Read-Only Text */}
-        <div className="form-group" style={{ display: "flex", alignItems: "center", marginBottom: '8px' }}>
-          <label htmlFor="netPrice" style={{ marginRight: '10px', flex: '0 0 100px' }}>Net Price:</label>
-          <span style={{ flex: '1' }}>
-            {formData.netPrice ? formData.netPrice : "Net price will be calculated"}
-          </span>
-        </div>
-
-        {/* Net Value as Read-Only Text */}
-        <div className="form-group" style={{ display: "flex", alignItems: "center", marginBottom: '8px' }}>
-          <label htmlFor="netValue" style={{ marginRight: '10px', flex: '0 0 100px' }}>Net Value:</label>
-          <span style={{ flex: '1' }}>
-            {formData.netValue ? formData.netValue : "Net value will be calculated"}
-          </span>
-        </div>
-        </div>
   
-        <div className="button-group">
           <button type="button" onClick={calculateWeightAndVolume}>
             Calculate Weight and Volume
           </button>
-          <button type="submit">Predict Price</button>
+          <button type="submit">Submit</button>
         </div>
       </form>
     </div>
   );
-  
 };
 
 export default Input;
-
-
-
-
