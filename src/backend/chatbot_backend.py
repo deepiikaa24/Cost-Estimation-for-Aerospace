@@ -204,8 +204,8 @@ button:hover {
     fn=chatbot_interface,
     inputs=gradio.Textbox(lines=2, placeholder="Enter your query here..."),
     outputs="text",
-    title="Sensara Tech Chatbot",
-    description="Ask me anything about sensara's data!", theme='earneleh/paris'
+    title="Sansera Tech Chatbot",
+    description="Ask me anything about the raw material phase of estimation", theme='earneleh/paris'
 )
 
 # Launch the interface
