@@ -81,6 +81,8 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
             <option value="Flat">Flat</option>
             <option value="Bar">Bar</option>
             <option value="EXT">Extrusion</option>
+            <option value="Plate">Plate</option>
+            <option value="Sheet">Sheet</option>
           </select>
         </div>
 
