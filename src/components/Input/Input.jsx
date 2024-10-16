@@ -30,7 +30,7 @@ const materialAlloyTemperDensity = {
       "15-5 PH": ["A", "B"],
       "17-A PH": ["A", "B"],
       4130: ["A", "B"],
-      4340: ["A", "B"],
+      4340: ["ANNEALED", "B"],
       
     },
     density: 7850, // Example density for Steel in kg/m³
@@ -302,7 +302,17 @@ const Input = ({ predictedRM, selectedForm }) => {
               ))}
             </select>
           </div>
-  
+          <div className="form-group">
+            <label htmlFor="spec">Spec</label>
+            <input
+              type="text"
+              id="spec"
+              name="spec"
+              value={formData.spec}
+              onChange={handleChange}
+              placeholder="Enter spec"
+            />
+          </div>
           <div className="form-group">
             <label htmlFor="quantity">Quantity</label>
             <input
@@ -344,26 +354,18 @@ const Input = ({ predictedRM, selectedForm }) => {
               readOnly
               placeholder="Predicted price"
             />
-            <label htmlFor="netPrice">Net Price</label>
-            <input
-              type="text"
-              id="netPrice"
-              name="netPrice"
-              value={formData.netPrice}
-              readOnly
-              placeholder="Net price"
-            />
-            <label htmlFor="netValue">Net Value</label>
-            <input
-              type="text"
-              id="netValue"
-              name="netValue"
-              value={formData.netValue}
-              readOnly
-              placeholder="Net value"
-            />
-          </div>
-  
+            </div>
+
+            <label htmlFor="netPrice">Net Price : </label>
+            <div id="netPrice" name="netPrice">
+              {formData.netPrice || ""}
+            </div>
+
+            <label htmlFor="netValue">Net Value : </label>
+            <div id="netValue" name="netValue">
+              {formData.netValue || ""}
+            </div>
+
           <button type="button" onClick={calculateWeightAndVolume}>
             Calculate Weight and Volume
           </button>
