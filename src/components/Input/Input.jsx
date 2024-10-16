@@ -336,7 +336,7 @@ const Input = ({ predictedRM, selectedForm }) => {
               readOnly
               placeholder="Calculated volume"
             />
-            <label htmlFor="weight">Weight (gms)</label>
+            <label htmlFor="weight">Weight (kg)</label>
             <input
               type="text"
               id="weight"
@@ -369,7 +369,7 @@ const Input = ({ predictedRM, selectedForm }) => {
           <button type="button" onClick={calculateWeightAndVolume}>
             Calculate Weight and Volume
           </button>
-          <button type="submit">Submit</button>
+          <button type="submit">Predict Price</button>
         </div>
       </form>
     </div>
