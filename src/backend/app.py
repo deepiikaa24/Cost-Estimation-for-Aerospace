@@ -52,6 +52,10 @@ def predict_rm():
             form_columns['Form_Flat'] = 1
         elif data['form'] == 'EXT':
             form_columns['Form_EXT'] = 1
+        elif data['form'] == 'Plate':
+            form_columns['Form_Plate'] = 1
+        elif data['form'] == 'Sheet':
+            form_columns['Form_Sheet'] = 1
 
         # Combine the input_data (thickness, width, length) and form_columns
         input_data.update(form_columns)
