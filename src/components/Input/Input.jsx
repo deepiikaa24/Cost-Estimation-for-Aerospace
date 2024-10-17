@@ -128,7 +128,7 @@ const Input = ({ predictedRM, selectedForm }) => {
     const weight = volume * formData.density; // Weight in kg = Volume * Density
 
     // Convert weight to grams (1 kg = 1000 g)
-    const weightInGrams = weight * 1000;
+    const weightInGrams = weight;
 
     setFormData((prevData) => ({
         ...prevData,
