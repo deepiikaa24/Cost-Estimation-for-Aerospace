@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";  
 import axios from "axios"; // Import axios for making API calls
+import * as XLSX from "xlsx";
 import "./Input.css";
 
 // Sample data structure based on the provided Excel sheet
@@ -13,7 +14,7 @@ const materialAlloyTemperDensity = {
       7075: ["T6","T0","T76","T651","T7351","T73511"],
       7475: ["T7351"],
     },
-    density: 2700, // Example density for Aluminum in kg/m³
+    density: 2.7, // Example density for Aluminum in kg/m³
   },
   SS: {
     alloys: {
@@ -33,13 +34,13 @@ const materialAlloyTemperDensity = {
       4340: ["ANNEALED", "B"],
       
     },
-    density: 7850, // Example density for Steel in kg/m³
+    density: 7.8, // Example density for Steel in kg/m³
   },
   TI: {
     alloys: {
       "Ti-6AL-4V": ["H1000", "H1150"],
     },
-    density: 4507, // Example density for Titanium in kg/m³
+    density: 4.5, // Example density for Titanium in kg/m³
   },
   // Add other materials, alloys, and densities here...
 };
@@ -66,6 +67,7 @@ const Input = ({ predictedRM, selectedForm }) => {
   const [alloys, setAlloys] = useState([]);
   const [tempers, setTempers] = useState([]);
   const [formType, setFormType] = useState(selectedForm || "");
+  
 
   // Update form data when predictedRM or selectedForm changes
   useEffect(() => {
@@ -105,6 +107,38 @@ const Input = ({ predictedRM, selectedForm }) => {
     }
   }, [formData.alloy]);
 
+  const exportToCSV = () => {
+    // Prepare the data to export
+    const exportData = [
+      {
+        length: formData.length,
+        width: formData.width,
+        thickness: formData.thickness,
+        diameter: formData.diameter,
+        form: formData.form,
+        material: formData.material,
+        alloy: formData.alloy,
+        temper: formData.temper,
+        density: formData.density,
+        volume: formData.volume,
+        weight: formData.weight,
+        quantity: formData.quantity,
+        predictedPrice: formData.predictedPrice,
+        netPrice: formData.netPrice,
+        netValue: formData.netValue,
+      },
+    ];
+  
+    // Convert data to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "FormData");
+  
+    // Export to Excel file
+    XLSX.writeFile(workbook, "formData.xlsx");
+  };
+  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -115,58 +149,82 @@ const Input = ({ predictedRM, selectedForm }) => {
 
   const calculateWeightAndVolume = () => { 
     let volume;
-    if (formType === "RND") {
+
+    // Check if the form is Round (RND), Tube, or another shape (like Rectangular)
+    if (formData.form === "RND") {
         const radius = formData.diameter / 2;
-        volume = Math.PI * Math.pow(radius, 2) * formData.length; // Volume = πr²h
+        volume = Math.PI * Math.pow(radius, 2) * formData.length; // Volume = πr²h for cylindrical parts
+    } else if (formData.form === "TUBE") {
+        const outerRadius = formData.outerDiameter / 2;
+        const innerRadius = formData.innerDiameter / 2;
+        volume = Math.PI * (Math.pow(outerRadius, 2) - Math.pow(innerRadius, 2)) * formData.length; // Volume = π(outerRadius² - innerRadius²) * length for tubes
     } else {
-        volume = formData.length * formData.width * formData.thickness; // Volume = l * w * h
+        volume = formData.length * formData.width * formData.thickness; // Volume = l * w * h for rectangular parts
     }
 
-    // Convert cubic inches to cubic meters (1 cubic inch = 0.000016387064 cubic meters)
-    volume = volume * 0.000016387064;
+    // Convert cubic inches to cubic centimeters (1 cubic inch = 16.387064 cubic centimeters)
+    volume = volume * 16.387064;
 
-    const weight = volume * formData.density; // Weight in kg = Volume * Density
-
-    // Convert weight to grams (1 kg = 1000 g)
-    const weightInGrams = weight;
+    // Weight in grams = Volume in cm³ * Density in g/cm³
+    const weight = (volume * formData.density) / 1000;
 
     setFormData((prevData) => ({
         ...prevData,
-        volume: volume.toFixed(6), // Six decimal places for volume in m³
-        weight: weightInGrams.toFixed(2), // Two decimal places for weight in grams
+        volume: volume.toFixed(6), // Six decimal places for volume in cm³
+        weight: weight.toFixed(2), // Two decimal places for weight in grams
     }));
 };
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      console.log("Form data submitted:", formData);
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      // Send form data to the backend to get the predicted price using Random Forest model
-      const response = await axios.post("http://127.0.0.1:5000/predict_price", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  console.log('Form Data Before Submission:', formData); // Log form data
 
-      console.log("Response received from backend:", response.data);
+  try {
+    const rmResponse = await fetch('http://localhost:5000/predict_rm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
 
-      const predictedPrice = response.data.predicted_price.toFixed(2);
-      const netPrice = (predictedPrice * formData.weight).toFixed(2);
-      const netValue = (netPrice * formData.quantity).toFixed(2);
+    const priceResponse = await fetch('http://localhost:5000/predict_price', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
 
-      // Update the predicted price in the state
-      setFormData((prevData) => ({
-        ...prevData,
-        predictedPrice,
-        netPrice,
-        netValue,
-      }));
-    } catch (error) {
-      console.error("Error in predicting price:", error);
+    const csvResponse = await fetch('http://localhost:5001/write-csv', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    // Check if responses are ok
+    if (!rmResponse.ok || !priceResponse.ok || !csvResponse.ok) {
+      throw new Error('One or more requests failed');
     }
-  };
+
+    const rmData = await rmResponse.json();
+    const priceData = await priceResponse.json();
+    const csvData = await csvResponse.json();
+
+    console.log('CSV Save Status:', csvData.message);
+    console.log('Predicted RM dimensions:', rmData.predicted_dimensions);
+    console.log('Predicted Price:', priceData.predicted_price);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+
 
   return (
     <div className="Input">
@@ -185,68 +243,105 @@ const Input = ({ predictedRM, selectedForm }) => {
               <option value="FLAT">FLAT</option>
               <option value="BAR">BAR</option>
               <option value="EXT">EXT</option>
-              <option value="PLATE">PLATE</option> {/* Added plate option */}
+              <option value="PLATE">PLATE</option>
+              <option value="TUBE">TUBE</option> 
+              <option value="SHEET">SHEET</option>
+              <option value="FORG">FORG</option>
             </select>
           </div>
   
           {/* Render dimensions based on form type */}
           {formData.form === "RND" ? (
-            <div className="form-group">
-              <label htmlFor="diameter">Diameter (in)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="diameter"
-                name="diameter"
-                value={formData.diameter}
-                onChange={handleChange}
-                placeholder="Enter diameter"
-              />
-              <label htmlFor="length">Length (in)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="length"
-                name="length"
-                value={formData.length}
-                onChange={handleChange}
-                placeholder="Enter length"
-              />
-            </div>
-          ) : (
-            <div className="form-group">
-              <label htmlFor="length">Length (in)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="length"
-                name="length"
-                value={formData.length}
-                onChange={handleChange}
-                placeholder="Enter length"
-              />
-              <label htmlFor="width">Width (in)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="width"
-                name="width"
-                value={formData.width}
-                onChange={handleChange}
-                placeholder="Enter width"
-              />
-              <label htmlFor="thickness">Thickness (in)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="thickness"
-                name="thickness"
-                value={formData.thickness}
-                onChange={handleChange}
-                placeholder="Enter thickness"
-              />
-            </div>
-          )}
+  <div className="form-group">
+    <label htmlFor="diameter">Diameter (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="diameter"
+      name="diameter"
+      value={formData.diameter}
+      onChange={handleChange}
+      placeholder="Enter diameter"
+    />
+    <label htmlFor="length">Length (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="length"
+      name="length"
+      value={formData.length}
+      onChange={handleChange}
+      placeholder="Enter length"
+    />
+  </div>
+) : formData.form === "TUBE" ? (
+  <div className="form-group">
+    <label htmlFor="outerDiameter">Outer Diameter (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="outerDiameter"
+      name="outerDiameter"
+      value={formData.outerDiameter}
+      onChange={handleChange}
+      placeholder="Enter outer diameter"
+    />
+    <label htmlFor="innerDiameter">Inner Diameter (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="innerDiameter"
+      name="innerDiameter"
+      value={formData.innerDiameter}
+      onChange={handleChange}
+      placeholder="Enter inner diameter"
+    />
+    <label htmlFor="length">Length (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="length"
+      name="length"
+      value={formData.length}
+      onChange={handleChange}
+      placeholder="Enter length"
+    />
+  </div>
+) : (
+  <div className="form-group">
+    <label htmlFor="length">Length (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="length"
+      name="length"
+      value={formData.length}
+      onChange={handleChange}
+      placeholder="Enter length"
+    />
+    <label htmlFor="width">Width (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="width"
+      name="width"
+      value={formData.width}
+      onChange={handleChange}
+      placeholder="Enter width"
+    />
+    <label htmlFor="thickness">Thickness (in)</label>
+    <input
+      type="number"
+      step="0.01"
+      id="thickness"
+      name="thickness"
+      value={formData.thickness}
+      onChange={handleChange}
+      placeholder="Enter thickness"
+    />
+  </div>
+)}
+
   
           <div className="form-group">
             <label htmlFor="material">Material</label>
@@ -303,16 +398,85 @@ const Input = ({ predictedRM, selectedForm }) => {
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="spec">Spec</label>
-            <input
-              type="text"
-              id="spec"
-              name="spec"
-              value={formData.spec}
-              onChange={handleChange}
-              placeholder="Enter spec"
-            />
-          </div>
+  <label htmlFor="spec">Spec</label>
+  <select
+    id="spec"
+    name="spec"
+    value={formData.spec}
+    onChange={handleChange}
+  >
+    <option value="">Select a Spec</option>
+    <option value="BMS7-371">BMS7-371</option>
+    <option value="AMS5659 TYPE I">AMS5659 TYPE I</option>
+    <option value="AMS5659 TYPE II">AMS5659 TYPE II</option>
+    <option value="ABS5052">ABS5052</option>
+    <option value="ABS5073A">ABS5073A</option>
+    <option value="ABS5324">ABS5324</option>
+    <option value="ABS5455">ABS5455</option>
+    <option value="AMS5659">AMS5659</option>
+    <option value="AMS-WW-T-700/3">AMS-WW-T-700/3</option>
+    <option value="AMS4027">AMS4027</option>
+    <option value="AMS4050">AMS4050</option>
+    <option value="AMS4078">AMS4078</option>
+    <option value="AMS4082">AMS4082</option>
+    <option value="AMS4117">AMS4117</option>
+    <option value="AMS4124">AMS4124</option>
+    <option value="AMS4342">AMS4342</option>
+    <option value="AMS4534">AMS4534</option>
+    <option value="AMS4596">AMS4596</option>
+    <option value="AMS4625">AMS4625</option>
+    <option value="AMS4640">AMS4640</option>
+    <option value="AMS4880">AMS4880</option>
+    <option value="AMS4911">AMS4911</option>
+    <option value="AMS4928">AMS4928</option>
+    <option value="AMS5599">AMS5599</option>
+    <option value="AMS5622">AMS5622</option>
+    <option value="AMS5629">AMS5629</option>
+    <option value="AMS5630">AMS5630</option>
+    <option value="AMS5639">AMS5639</option>
+    <option value="AMS5640">AMS5640</option>
+    <option value="AMS5643">AMS5643</option>
+    <option value="AMS5647">AMS5647</option>
+    <option value="AMS5848C">AMS5848C</option>
+    <option value="AMS6345">AMS6345</option>
+    <option value="AMS6346">AMS6346</option>
+    <option value="AMS6348">AMS6348</option>
+    <option value="AMS6360">AMS6360</option>
+    <option value="AMS6414">AMS6414</option>
+    <option value="AMS 4124">AMS 4124</option>
+    <option value="AMS-QQ-A-200/11">AMS-QQ-A-200/11</option>
+    <option value="AMS-QQ-A-250/12">AMS-QQ-A-250/12</option>
+    <option value="AMS-QQ-A-250/4">AMS-QQ-A-250/4</option>
+    <option value="ASNA3406">ASNA3406</option>
+    <option value="ASTM A240">ASTM A240</option>
+    <option value="ASTM A276">ASTM A276</option>
+    <option value="ASTM A479">ASTM A479</option>
+    <option value="ASTM A582">ASTM A582</option>
+    <option value="ASTM B209">ASTM B209</option>
+    <option value="ASTM B211">ASTM B211</option>
+    <option value="ASTM B221">ASTM B221</option>
+    <option value="ASTM D6778">ASTM D6778</option>
+    <option value="BAC1501-100153">BAC1501-100153</option>
+    <option value="BMS 7-122">BMS 7-122</option>
+    <option value="BMS 7-214">BMS 7-214</option>
+    <option value="BMS 7-240">BMS 7-240</option>
+    <option value="BMS 7-323">BMS 7-323</option>
+    <option value="BMS 7-323 Type 1">BMS 7-323 Type 1</option>
+    <option value="BMS 7-323 Type III">BMS 7-323 Type III</option>
+    <option value="EN573-3">EN573-3</option>
+    <option value="MIL-T-9047">MIL-T-9047</option>
+    <option value="AMS-QQ-A-200/3">AMS-QQ-A-200/3</option>
+    <option value="AMS-QQ-A-200/8">AMS-QQ-A-200/8</option>
+    <option value="AMS-QQ-A-225/6">AMS-QQ-A-225/6</option>
+    <option value="AMS-QQ-A-225/8">AMS-QQ-A-225/8</option>
+    <option value="AMS-QQ-A-225/9">AMS-QQ-A-225/9</option>
+    <option value="AMS-QQ-A-250/11A">AMS-QQ-A-250/11A</option>
+    <option value="AMS-QQ-A-250/30">AMS-QQ-A-250/30</option>
+    <option value="AMS-QQ-A-250/5">AMS-QQ-A-250/5</option>
+    <option value="QQ-S-763">QQ-S-763</option>
+  </select>
+</div>
+
           <div className="form-group">
             <label htmlFor="quantity">Quantity</label>
             <input
@@ -327,22 +491,22 @@ const Input = ({ predictedRM, selectedForm }) => {
   
           {/* Display calculated volume, weight, and predicted price */}
           <div className="form-group">
-            <label htmlFor="volume">Volume (m³)</label>
+            <label htmlFor="volume">Volume (cm³)</label>
             <input
               type="text"
               id="volume"
               name="volume"
               value={formData.volume}
-              readOnly
+              onChange={handleChange}
               placeholder="Calculated volume"
             />
-            <label htmlFor="weight">Weight (kg)</label>
+            <label htmlFor="weight">Weight (g)</label>
             <input
               type="text"
               id="weight"
               name="weight"
               value={formData.weight}
-              readOnly
+              onChange={handleChange}
               placeholder="Calculated weight"
             />
             <label htmlFor="predictedPrice">Predicted Price per kg</label>
@@ -370,6 +534,9 @@ const Input = ({ predictedRM, selectedForm }) => {
             Calculate Weight and Volume
           </button>
           <button type="submit">Predict Price</button>
+          <button type="button" onClick={exportToCSV}>
+            Export to Excel
+          </button>
         </div>
       </form>
     </div>
