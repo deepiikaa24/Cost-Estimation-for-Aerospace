@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";  
 import axios from "axios"; // Import axios for making API calls
-import * as XLSX from "xlsx";
 import "./Input.css";
 
 // Sample data structure based on the provided Excel sheet
@@ -67,7 +66,6 @@ const Input = ({ predictedRM, selectedForm }) => {
   const [alloys, setAlloys] = useState([]);
   const [tempers, setTempers] = useState([]);
   const [formType, setFormType] = useState(selectedForm || "");
-  
 
   // Update form data when predictedRM or selectedForm changes
   useEffect(() => {
@@ -107,45 +105,16 @@ const Input = ({ predictedRM, selectedForm }) => {
     }
   }, [formData.alloy]);
 
-  const exportToCSV = () => {
-    // Prepare the data to export
-    const exportData = [
-      {
-        length: formData.length,
-        width: formData.width,
-        thickness: formData.thickness,
-        diameter: formData.diameter,
-        form: formData.form,
-        material: formData.material,
-        alloy: formData.alloy,
-        temper: formData.temper,
-        density: formData.density,
-        volume: formData.volume,
-        weight: formData.weight,
-        quantity: formData.quantity,
-        predictedPrice: formData.predictedPrice,
-        netPrice: formData.netPrice,
-        netValue: formData.netValue,
-      },
-    ];
-  
-    // Convert data to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "FormData");
-  
-    // Export to Excel file
-    XLSX.writeFile(workbook, "formData.xlsx");
-  };
-  
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    
   };
+
+
 
   const calculateWeightAndVolume = () => { 
     let volume;
@@ -166,7 +135,7 @@ const Input = ({ predictedRM, selectedForm }) => {
     volume = volume * 16.387064;
 
     // Weight in grams = Volume in cm³ * Density in g/cm³
-    const weight = (volume * formData.density) / 1000;
+    const weight = (volume * formData.density)/ 1000;
 
     setFormData((prevData) => ({
         ...prevData,
@@ -176,54 +145,49 @@ const Input = ({ predictedRM, selectedForm }) => {
 };
 
 
+
+
 const handleSubmit = async (e) => {
   e.preventDefault();
-
-  console.log('Form Data Before Submission:', formData); // Log form data
-
   try {
-    const rmResponse = await fetch('http://localhost:5000/predict_rm', {
-      method: 'POST',
+    console.log("Form data submitted:", formData);
+
+    // Step 1: Predict price using Random Forest model
+    const response = await axios.post("http://127.0.0.1:5000/predict_price", formData, {
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData)
     });
 
-    const priceResponse = await fetch('http://localhost:5000/predict_price', {
-      method: 'POST',
+    console.log("Response received from backend:", response.data);
+
+    // Step 2: Update formData with the predicted values
+    const predictedPrice = response.data.predicted_price.toFixed(2);
+    const netPrice = (predictedPrice * formData.weight).toFixed(2);
+    const netValue = (netPrice * formData.quantity).toFixed(2);
+
+    const updatedFormData = {
+      ...formData,
+      predictedPrice,
+      netPrice,
+      netValue,
+    };
+
+    setFormData(updatedFormData);
+
+    // Step 3: Append updated formData to Google Sheet
+    await axios.post("http://localhost:3000/update-sheet", updatedFormData, {
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData)
     });
 
-    const csvResponse = await fetch('http://localhost:5001/write-csv', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
-
-    // Check if responses are ok
-    if (!rmResponse.ok || !priceResponse.ok || !csvResponse.ok) {
-      throw new Error('One or more requests failed');
-    }
-
-    const rmData = await rmResponse.json();
-    const priceData = await priceResponse.json();
-    const csvData = await csvResponse.json();
-
-    console.log('CSV Save Status:', csvData.message);
-    console.log('Predicted RM dimensions:', rmData.predicted_dimensions);
-    console.log('Predicted Price:', priceData.predicted_price);
+    console.log("Form data appended to Google Sheet");
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error in predicting price or updating Google Sheet:", error);
   }
 };
-
 
 
   return (
@@ -500,7 +464,7 @@ const handleSubmit = async (e) => {
               onChange={handleChange}
               placeholder="Calculated volume"
             />
-            <label htmlFor="weight">Weight (g)</label>
+            <label htmlFor="weight">Weight (kg)</label>
             <input
               type="text"
               id="weight"
@@ -534,9 +498,6 @@ const handleSubmit = async (e) => {
             Calculate Weight and Volume
           </button>
           <button type="submit">Predict Price</button>
-          <button type="button" onClick={exportToCSV}>
-            Export to Excel
-          </button>
         </div>
       </form>
     </div>
