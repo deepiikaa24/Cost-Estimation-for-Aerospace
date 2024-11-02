@@ -23,7 +23,7 @@ const client = new google.auth.JWT(
 const headers = [
   'Length', 'Width', 'Thickness', 'Diameter', 'Form', 'Material',
   'Alloy', 'Temper', 'Density', 'Volume', 'Weight', 'Quantity',
-  'Predicted Price', 'Net Price', 'Net Value'
+  'Predicted Price', 'Net Price', 'Net Value' ,'Freight Charge', 'Rejection Charge'
 ];
 
 // Function to update Google Sheet
@@ -36,7 +36,7 @@ const updateSheet = async (formData) => {
     // Define the spreadsheet ID and the range to update
     const spreadsheetId = '1tEoUY1HXB9arjl0mt7trGWLG3ts5cwRbR0HHrhCfGhs';
     const headerRange = 'Sheet1!A1:O1'; // Example range for headers
-    const dataRange = 'Sheet1!A2:O'; // Range for appending data
+    const dataRange = 'Sheet1!A2:Q'; // Range for appending data
 
     // Check if headers are already present
     const headerCheck = await sheets.spreadsheets.values.get({
@@ -74,6 +74,8 @@ const updateSheet = async (formData) => {
         formData.predictedPrice,
         formData.netPrice,
         formData.netValue,
+        formData.freightCharge,   
+        formData.rejectionCharge
       ],
     ];
 
