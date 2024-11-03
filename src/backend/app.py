@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
 import pandas as pd
-
+import xgboost as xgb
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
@@ -70,7 +70,9 @@ def predict_rm():
         input_df = input_df[expected_features]
 
         # Make prediction using the XGBoost model
-        prediction = xgboost_model.predict(input_df)
+        #prediction = xgboost_model.predict(input_df)
+        prediction = xgboost_model.predict(xgb.DMatrix(input_df))
+
         print("Part to RM Model prediction:", prediction)
 
         # Cast the prediction to standard Python float types
