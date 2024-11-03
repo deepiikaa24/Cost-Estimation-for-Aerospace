@@ -439,6 +439,7 @@ const Input = ({ predictedRM, selectedForm }) => {
               <option value="BMS 7-214">BMS 7-214</option>
               <option value="BMS 7-240">BMS 7-240</option>
               <option value="BMS 7-323">BMS 7-323</option>
+              <option value="BMS 7-26">BMS 7-26</option>
               <option value="BMS 7-323 Type 1">BMS 7-323 Type 1</option>
               <option value="BMS 7-323 Type III">BMS 7-323 Type III</option>
               <option value="EN573-3">EN573-3</option>
