@@ -84,7 +84,7 @@ const Input = ({ predictedRM, selectedForm }) => {
       form: selectedForm,
     }));
   }, [predictedRM, selectedForm]);
-
+ 
   useEffect(() => {
     if (formData.material) {
       const selectedMaterial = materialAlloyTemperDensity[formData.material];

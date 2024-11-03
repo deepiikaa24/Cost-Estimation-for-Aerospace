@@ -16,6 +16,15 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
     rmWidth: "",
     rmLength: "",
   });
+  // Define the mapping for form values
+const formMapping = {
+  Round: "RND",
+  Flat: "FLAT",
+  Bar: "BAR",
+  Extrusion: "EXT",
+  Plate: "PLATE",
+  Sheet: "SHEET"
+};
 
   // Update form data when input changes
   const handleChange = (e) => {
@@ -27,7 +36,9 @@ const ParttoRM = ({ setPredictedRM, setSelectedForm }) => {
 
     // If the form changes, update the selected form in App.js
     if (name === "form") {
-      setSelectedForm(value);
+      const mappedForm = formMapping[value] || value; // Use mapped value or fallback to the original
+      setSelectedForm(mappedForm);
+
     }
   };
 
