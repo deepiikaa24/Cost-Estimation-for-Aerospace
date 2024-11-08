@@ -58,6 +58,7 @@ const Input = ({ predictedRM, selectedForm }) => {
     weight: "",
     quantity: "",
     predictedPrice: "",
+    partPrice: "",
     netPrice: "",
     netValue: "",
   });
@@ -176,12 +177,14 @@ const Input = ({ predictedRM, selectedForm }) => {
       const rejectionRate = rejectionRates[formData.material] || 0;
       const freightCharge = (predictedPrice * freightPercentage).toFixed(2);
       const rejectionCharge = (predictedPrice * rejectionRate).toFixed(2);
+      const partPrice = (predictedPrice * formData.weight).toFixed(2);
       const netPrice = ((predictedPrice * formData.weight) + parseFloat(freightCharge) + parseFloat(rejectionCharge)).toFixed(2);
       const netValue = (netPrice * formData.quantity).toFixed(2);
 
       setFormData((prevData) => ({
         ...prevData,
         predictedPrice: predictedPrice.toFixed(2),
+        partPrice,
         netPrice,
         netValue,
       }));
@@ -384,49 +387,37 @@ const Input = ({ predictedRM, selectedForm }) => {
               onChange={handleChange}
             >
               <option value="">Select a Spec</option>
-              <option value="BMS7-371">BMS7-371</option>
-              <option value="AMS5659 TYPE I">AMS5659 TYPE I</option>
-              <option value="AMS5659 TYPE II">AMS5659 TYPE II</option>
-              <option value="ABS5052">ABS5052</option>
-              <option value="ABS5073A">ABS5073A</option>
-              <option value="ABS5324">ABS5324</option>
-              <option value="ABS5455">ABS5455</option>
-              <option value="AMS5659">AMS5659</option>
-              <option value="AMS-WW-T-700/3">AMS-WW-T-700/3</option>
-              <option value="AMS4027">AMS4027</option>
-              <option value="AMS4050">AMS4050</option>
-              <option value="AMS4078">AMS4078</option>
-              <option value="AMS4082">AMS4082</option>
-              <option value="AMS4117">AMS4117</option>
-              <option value="AMS4124">AMS4124</option>
-              <option value="AMS4342">AMS4342</option>
-              <option value="AMS4534">AMS4534</option>
-              <option value="AMS4596">AMS4596</option>
-              <option value="AMS4625">AMS4625</option>
-              <option value="AMS4640">AMS4640</option>
-              <option value="AMS4880">AMS4880</option>
-              <option value="AMS4911">AMS4911</option>
-              <option value="AMS4928">AMS4928</option>
-              <option value="AMS5599">AMS5599</option>
-              <option value="AMS5622">AMS5622</option>
-              <option value="AMS5629">AMS5629</option>
-              <option value="AMS5630">AMS5630</option>
-              <option value="AMS5639">AMS5639</option>
-              <option value="AMS5640">AMS5640</option>
-              <option value="AMS5643">AMS5643</option>
-              <option value="AMS5647">AMS5647</option>
-              <option value="AMS5848C">AMS5848C</option>
-              <option value="AMS6345">AMS6345</option>
-              <option value="AMS6346">AMS6346</option>
-              <option value="AMS6348">AMS6348</option>
-              <option value="AMS6360">AMS6360</option>
-              <option value="AMS6414">AMS6414</option>
+              <option value="ABS 5052">ABS 5052</option>
+              <option value="ABS 5324">ABS 5324</option>
+              <option value="ABS 5455">ABS 5455</option>
+              <option value="AMS 4027">AMS 4027</option>
+              <option value="AMS 4050">AMS 4050</option>
+              <option value="AMS 4078">AMS 4078</option>
+              <option value="AMS 4117">AMS 4117</option>
               <option value="AMS 4124">AMS 4124</option>
-              <option value="AMS-QQ-A-200/11">AMS-QQ-A-200/11</option>
-              <option value="AMS-QQ-A-250/12">AMS-QQ-A-250/12</option>
-              <option value="AMS-QQ-A-250/4">AMS-QQ-A-250/4</option>
-              <option value="ASNA3406">ASNA3406</option>
-              <option value="ASTM A240">ASTM A240</option>
+              <option value="AMS 4342">AMS 4342</option>
+              <option value="AMS 4534">AMS 4534</option>
+              <option value="AMS 4596">AMS 4596</option>
+              <option value="AMS 4625">AMS 4625</option>
+              <option value="AMS 4640">AMS 4640</option>
+              <option value="AMS 4880">AMS 4880</option>
+              <option value="AMS 4911">AMS 4911</option>
+              <option value="AMS 4928">AMS 4928</option>
+              <option value="AMS 5599">AMS 5599</option>
+              <option value="AMS 5622">AMS 5622</option>
+              <option value="AMS 5629">AMS 5629</option>
+              <option value="AMS 5630">AMS 5630</option>
+              <option value="AMS 5639">AMS 5639</option>
+              <option value="AMS 5640">AMS 5640</option>
+              <option value="AMS 5643">AMS 5643</option>
+              <option value="AMS 5647">AMS 5647</option>
+              <option value="AMS 5659">AMS 5659</option>
+              <option value="AMS 5848">AMS 5848</option>
+              <option value="AMS 6345">AMS 6345</option>
+              <option value="AMS 6346">AMS 6346</option>
+              <option value="AMS 6348">AMS 6348</option>
+              <option value="AMS 6414">AMS 6414</option>
+              <option value="ASNA 3406">ASNA 3406</option>
               <option value="ASTM A276">ASTM A276</option>
               <option value="ASTM A479">ASTM A479</option>
               <option value="ASTM A582">ASTM A582</option>
@@ -434,25 +425,27 @@ const Input = ({ predictedRM, selectedForm }) => {
               <option value="ASTM B211">ASTM B211</option>
               <option value="ASTM B221">ASTM B221</option>
               <option value="ASTM D6778">ASTM D6778</option>
-              <option value="BAC1501-100153">BAC1501-100153</option>
               <option value="BMS 7-122">BMS 7-122</option>
               <option value="BMS 7-214">BMS 7-214</option>
               <option value="BMS 7-240">BMS 7-240</option>
-              <option value="BMS 7-323">BMS 7-323</option>
               <option value="BMS 7-26">BMS 7-26</option>
-              <option value="BMS 7-323 Type 1">BMS 7-323 Type 1</option>
-              <option value="BMS 7-323 Type III">BMS 7-323 Type III</option>
-              <option value="EN573-3">EN573-3</option>
+              <option value="BMS 7-323">BMS 7-323</option>
+              <option value="BMS 7-323 TY1">BMS 7-323 TY1</option>
+              <option value="BMS 7-323 TYIII">BMS 7-323 TYIII</option>
+              <option value="BMS7-371">BMS7-371</option>
               <option value="MIL-T-9047">MIL-T-9047</option>
               <option value="AMS-QQ-A-200/3">AMS-QQ-A-200/3</option>
               <option value="AMS-QQ-A-200/8">AMS-QQ-A-200/8</option>
+              <option value="AMS-QQ-A-200/11">AMS-QQ-A-200/11</option>
               <option value="AMS-QQ-A-225/6">AMS-QQ-A-225/6</option>
               <option value="AMS-QQ-A-225/8">AMS-QQ-A-225/8</option>
               <option value="AMS-QQ-A-225/9">AMS-QQ-A-225/9</option>
-              <option value="AMS-QQ-A-250/11A">AMS-QQ-A-250/11A</option>
-              <option value="AMS-QQ-A-250/30">AMS-QQ-A-250/30</option>
+              <option value="AMS-QQ-A-250/4">AMS-QQ-A-250/4</option>
               <option value="AMS-QQ-A-250/5">AMS-QQ-A-250/5</option>
-              <option value="QQ-S-763">QQ-S-763</option>
+              <option value="AMS-QQ-A-250/11">AMS-QQ-A-250/11</option>
+              <option value="AMS-QQ-A-250/12">AMS-QQ-A-250/12</option>
+              <option value="AMS-QQ-A-250/30">AMS-QQ-A-250/30</option>
+              <option value="AMS-QQ-S-763">AMS-QQ-S-763</option>
             </select>
           </div>
 
@@ -494,7 +487,7 @@ const Input = ({ predictedRM, selectedForm }) => {
               type="text"
               id="predictedPrice"
               name="predictedPrice"
-              value={formData.predictedPrice}
+              value={`$${formData.predictedPrice}`}
               readOnly
               placeholder="Predicted price"
             />
@@ -511,10 +504,13 @@ const Input = ({ predictedRM, selectedForm }) => {
 
           {/* Net Price and Net Value */}
           <div className="form-group">
-            <label>Net Price:</label>
+            <label><b>Part Price:</b></label>
+            <div id="partPrice">${formData.partPrice}</div>
+
+            <label><b>Net Price:</b></label>
             <div id="netPrice">${formData.netPrice}</div>
 
-            <label>Net Value:</label>
+            <label><b>Net Value:</b></label>
             <div id="netValue">${formData.netValue}</div>
           </div>
 
