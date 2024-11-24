@@ -636,13 +636,13 @@ const Input = ({ predictedRM, selectedForm }) => {
             },
           }}
         />
-        <p>Selected Price: {selectedPrice}</p> {/* Display the selected price */}
+        <p>Selected Price: ${selectedPrice}</p> {/* Display the selected price */}
           {/* Conditionally Display Calculated Results */}
       {isRecalculated && (
         <div>
-          <p>Recalculated Part Price: {RecalculatedValues.partPrice}</p>
-          <p>Recalculated Net Price: {RecalculatedValues.netPrice}</p>
-          <p>Recalculated Net Value: {RecalculatedValues.netValue}</p>
+          <p>Recalculated Part Price: ${RecalculatedValues.partPrice}</p>
+          <p>Recalculated Net Price: ${RecalculatedValues.netPrice}</p>
+          <p>Recalculated Net Value: ${RecalculatedValues.netValue}</p>
         </div>
       )}
        <button className="recalculate-button" onClick={handleRecalculate}>Recalculate Price</button>
