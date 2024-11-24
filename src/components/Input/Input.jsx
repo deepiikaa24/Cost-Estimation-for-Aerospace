@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";   
 import axios from "axios"; // Import axios for making API calls
+import { Line } from "react-chartjs-2";  // Import Line chart from react-chartjs-2
+import { Chart as ChartJS } from "chart.js/auto";
 import "./Input.css";
+import { color } from "chart.js/helpers";
 
 // Sample data structure based on the provided Excel sheet
 const materialAlloyTemperDensity = {
@@ -62,7 +65,8 @@ const Input = ({ predictedRM, selectedForm }) => {
     netPrice: "",
     netValue: "",
   });
-
+  const [selectedPrice, setSelectedPrice] = useState(null);
+  const [isRecalculated, setisRecalculated] = useState(false); // Flag to control display of calculated values
   const [alloys, setAlloys] = useState([]);
   const [tempers, setTempers] = useState([]);
   const [importType, setImportType] = useState('Domestic');
@@ -74,7 +78,36 @@ const Input = ({ predictedRM, selectedForm }) => {
     SS: 0.025, // Steel & PH
     Ti: 0.03   // Titanium
   };
+  const [graphData, setGraphData] = useState({
+    labels: [],
+    datasets: [{
+      label: 'Price vs Quantity',
+      data: [],
+      borderColor: 'rgba(75,192,192,1)',
+      borderWidth: 2,
+      fill: false,
+    }],
+  });
+  const [RecalculatedValues, setRecalculatedValues] = useState({
+    partPrice: 0,
+    netPrice: 0,
+    netValue: 0,
+  });
+  const handleRecalculate = () => {
+    const { quantity, weight } = formData;
 
+    // Perform calculations
+    const partPrice = (selectedPrice * formData.weight).toFixed(2);
+    const netPrice = ((selectedPrice * formData.weight) + parseFloat(freightCharge) + parseFloat(rejectionCharge)).toFixed(2);
+    const netValue = (netPrice * formData.quantity).toFixed(2);
+
+    setRecalculatedValues({
+      partPrice,
+      netPrice,
+      netValue,
+    });
+    setisRecalculated(true); // Set flag to true
+  };
   useEffect(() => {
     setFormData((prevData) => ({
       ...prevData,
@@ -171,7 +204,24 @@ const Input = ({ predictedRM, selectedForm }) => {
       const response = await axios.post("http://127.0.0.1:5000/predict_price", formData, {
         headers: { "Content-Type": "application/json" },
       });
-
+      const { prices_by_quantity } = response.data;
+      const { quantity_range } = response.data;
+      setGraphData({
+        labels: quantity_range,
+        datasets: [
+          {
+            label: 'Price vs Quantity',
+            font: {
+              size: 16, // Adjust font size as needed
+              color: "red"
+            },
+            data: prices_by_quantity,
+            borderColor: 'rgba(75,192,192,1)',
+            borderWidth: 2,
+            fill: true,
+          },
+        ],
+      });
       const predictedPrice = parseFloat(response.data.predicted_price);
       const freightPercentage = calculateFreightPercentage(formData.weight)[importType];
       const rejectionRate = rejectionRates[formData.material] || 0;
@@ -191,6 +241,12 @@ const Input = ({ predictedRM, selectedForm }) => {
       setFreightCharge(freightCharge);
       setRejectionCharge(rejectionCharge);
 
+      // Update graph data for price vs quantity
+      const newGraphData = { ...graphData };
+      newGraphData.labels = quantity_range; // Use the quantity range as labels
+      newGraphData.datasets[0].data = prices_by_quantity; // Use the predicted prices as data
+      setGraphData(newGraphData);
+
       await axios.post("http://localhost:3000/update-sheet", { ...formData, predictedPrice, netPrice, netValue,freightCharge,rejectionCharge }, {
         headers: { "Content-Type": "application/json" },
       });
@@ -201,8 +257,9 @@ const Input = ({ predictedRM, selectedForm }) => {
   };
 
   return (
-    <div className="Input">
-      <form onSubmit={handleSubmit}>
+    <div className="Input" style={{ display: "flex" }}>
+      <div style={{ width: "50%", padding: "10px" }}>
+        <form className="form-container" onSubmit={handleSubmit}>
         <div className="form-scroll">
         <div className="form-group">
             <label htmlFor="importType">Import Type</label>
@@ -403,7 +460,6 @@ const Input = ({ predictedRM, selectedForm }) => {
               <option value="AMS 4880">AMS 4880</option>
               <option value="AMS 4911">AMS 4911</option>
               <option value="AMS 4928">AMS 4928</option>
-              <option value="AMS 5599">AMS 5599</option>
               <option value="AMS 5622">AMS 5622</option>
               <option value="AMS 5629">AMS 5629</option>
               <option value="AMS 5630">AMS 5630</option>
@@ -520,10 +576,81 @@ const Input = ({ predictedRM, selectedForm }) => {
           <button type="submit">Predict Price</button>
         </div>
       </form>
+      </div>
+      {/* Graph */}
+      <div className="graph-container">
+      <Line
+          data={graphData}
+          options={{
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Quantity',
+                  font: {
+                    size: 16,},
+                    color: "black",
+                },
+                ticks: {
+                  color: "black", // X-axis label color
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Price',
+                  font: {
+                    size: 16,},
+                    color: "black",
+                  },
+                ticks: {
+                  color: "black", // X-axis label color
+                },
+                },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: 'Price vs Quantity',
+                color: "black",
+                font: {
+                  size: 20,
+                },
+              },
+            },
+            onClick: (event, chartElement) => {
+              if (chartElement && chartElement.length > 0) {
+                const clickedIndex = chartElement[0].index; // Index of clicked data point
+                const datasetIndex = chartElement[0].datasetIndex; // Dataset index
+                const newPrice =
+                  graphData.datasets[datasetIndex].data[clickedIndex]; // Retrieve data value
+        
+                const roundedPrice = parseFloat(newPrice).toFixed(2); // Round to 2 decimals
+        
+                setSelectedPrice(roundedPrice); // Update selected price
+                setisRecalculated(false); // Reset the flag when a new price is selected
+              } else {
+                console.warn('No data point clicked.');
+              }
+            },
+          }}
+        />
+        <p>Selected Price: {selectedPrice}</p> {/* Display the selected price */}
+          {/* Conditionally Display Calculated Results */}
+      {isRecalculated && (
+        <div>
+          <p>Recalculated Part Price: {RecalculatedValues.partPrice}</p>
+          <p>Recalculated Net Price: {RecalculatedValues.netPrice}</p>
+          <p>Recalculated Net Value: {RecalculatedValues.netValue}</p>
+        </div>
+      )}
+       <button className="recalculate-button" onClick={handleRecalculate}>Recalculate Price</button>
+      </div>
+
     </div>
   );
 };
-
 export default Input;
 
 

@@ -131,11 +131,25 @@ def predict_price():
         # Cast the predicted price to a standard float
         predicted_price = float(predicted_price[0])
 
-        # Return the predicted price as JSON
-        return jsonify({
-            "predicted_price": predicted_price
-        })
+        # Generate price predictions for varying quantities
+        quantity = int(data['quantity'])
+        quantity_range = range(max(0, quantity - 10), min(quantity + 11, 1000))  # 1000 is the upper limit of the quantity
+        prices_by_quantity = []
+        for current_quantity in quantity_range:
+            updated_data = input_data.copy()
+            updated_data['Quantity'] = current_quantity
+            input_df = pd.DataFrame([updated_data])
+            input_df[categorical_cols] = input_df[categorical_cols].apply(lambda x: label_encoders[x.name].transform(x))
+            predicted_price = random_forest_model.predict(input_df)[0]
+            prices_by_quantity.append(predicted_price)
 
+        # Return the predicted price and prices for varying quantities as JSON
+        return jsonify({
+            "predicted_price": predicted_price,
+            "prices_by_quantity": prices_by_quantity,
+            "quantity_range": list(quantity_range)
+        })
+    
     except Exception as e:
         print("Error during Random Forest prediction:", e)
         return jsonify({"error": "Random Forest Prediction failed"}), 500

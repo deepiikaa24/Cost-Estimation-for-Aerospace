@@ -1,12 +1,21 @@
 .Input {
-  max-width: 600px;
+  max-width: 1500px;
   margin: auto;
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
 
+}
+.form-container {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: rgb(248, 179, 191);
+
+}
 .form-scroll {
   max-height: 400px; /* Set the max height for the scrolling area */
   overflow-y: auto;  /* Enable vertical scrolling */
@@ -42,6 +51,7 @@ input[readonly] {
 
 button {
   padding: 10px 15px;
+  margin: 5px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -53,9 +63,37 @@ button:hover {
   background-color: #007bff; /* Change color on hover */
   color: white; /* Change text color on hover */
 }
+.graph-container {
+  width: 60%; /* Adjust the width as needed */
+  height: 300px; /* Adjust the height as needed */
+  padding-left: 60px;
+  margin: auto;
+}
 
+/* Adjust font sizes for labels */
+.chartjs-size-monitor,
+.chartjs-render-monitor {
+  display: none !important;
+}
 
+.chartjs-size-monitor,
+.chartjs-render-monitor {
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: visible;
+  z-index: -1;
+}
 
+.recalculate-button {
+  margin-top: 60px; 
+  margin-left: 310px;
+  background-color: rgb(149, 184, 237);
+}
 
 
 
