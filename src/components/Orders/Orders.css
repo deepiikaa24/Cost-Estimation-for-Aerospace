@@ -1,8 +1,47 @@
+.Orders {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  padding: 20px;
+  max-width: 100%; /* Ensure it takes full available width */
+  margin: 0 auto;
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Disable horizontal scrolling */
+}
 
-.Orders{
-    padding: 2rem;
-    background: white;
-    border-radius: 1rem;
-    box-shadow: var(--boxShadow);
-  }
-  
+.scroll-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two columns for images */
+  grid-auto-rows: auto; /* Adjust row height dynamically */
+  gap: 30px; /* Space between items */
+  justify-items: center; /* Center items horizontally */
+  margin: 20px 0;
+  width: 100%; /* Ensure it fits within the container */
+}
+
+.graph-image {
+  width: 90%; /* Make the images bigger */
+  max-width: 500px; /* Limit max width */
+  height: auto; /* Maintain aspect ratio */
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+h2 {
+  font-size: 30px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-size: 24px;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+/* Preserve Updates Section Alignment */
+.Orders + .Updates {
+  position: sticky;
+  top: 0;
+}
