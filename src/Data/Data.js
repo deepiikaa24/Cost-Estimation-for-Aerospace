@@ -36,7 +36,7 @@ export const SidebarData = [
   },
   {
     icon: UilMoneyWithdrawal,
-    heading: "Orders",
+    heading: "XAI",
     path: "/orders"
   },
   {
